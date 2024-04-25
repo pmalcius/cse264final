@@ -159,24 +159,114 @@ function processLogin(socket, loginname) {
     2. checks?
     3. moving
     4. IDK man
-*/
 
-function movePiece(grid, startX, startY, endX, endY) {
-    // Check if the destination has an opponent's piece
-    if (grid[endX][endY] !== 0) {
-        console.log(`Piece taken at ${endX}, ${endY}`);
+    In processMove we have to first recive the objects moving from client. They send them. We then process
+    if the move was valid, if not we then reject it and tell the client that we need another move. By checking
+    if valid, we check if they are in check as well. If they are in checkmate, then they lose. We also need to
+    process any taking of pieces and movement of pieces.
+*/
+function processMove(socket, obj) {
+    const tile1x = obj.image1Col;
+    const tile1y = obj.image1Row;
+    const tile2x = obj.image2Col;
+    const tile2y = obj.image2Row;
+    const id = obj.id;
+
+    console.log(`processSwap: ${obj}`);
+    console.log(`processing swap request: userid= ${id}`);
+    console.log(`tile1x= ${tile1x} tile1y= ${tile1y} tile2x= ${tile2x} tile2y= ${tile2y}`);
+    socket.emit("debug", `INFO: images swapped at (row,col) (${tile1y},${tile1x}) and (${tile2y},${tile2x})`)
+
+    if (isCheck(socket, tile1x, tile1y, tile2x, tile2y)) {
+        socket.emit("debug", `Check Found.`)
+        //chessPlayers.checkAlert(id);      // We could return something to let the user know he is in check
+        console.log('processMove: Check Found. ');
+        updateGrid();
+        //updateStatus();       // Maybe use later IDK tho.
+    } else {
+        socket.emit("debug", `Check not found.`)
     }
-    // Move the piece
-    grid[endX][endY] = grid[startX][startY];
-    grid[startX][startY] = 0;
-    return grid;
 }
 
+function updateChat(message) {
+    io.sockets.emit("chatbroadcast", message);
+}
+  
+function updateGrid() {
+    io.sockets.emit("gridupdate", grid);
+}
+
+/*
+// Maybe use later check processMove
+function updateStatus() {
+    const tmp = chessPlayers.players.map((t) => t)
+    tmp.sort((a, b) => b.score - a.score);
+    io.sockets.emit("playerslistupdate", tmp);
+}
+*/
 
 
+// Load the required libraries
+
+const express = require('express');
+const { createServer } = require('http');
+const { join } = require('path');
+const { Server } = require('socket.io');
+
+const app = express();
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+})
+
+const server = createServer(app)
+  ;
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+
+// Listen for connections on PORT
+server.listen(PORT, HOST, () => { console.log(`Server running at http://${HOST}:${PORT}/`); });
 
 
+// Socket.IO code for setting up connection and sending initial hand and player list.
+io.on("connection",
+  function (socket) {
+    const address = socket.handshake.address;
+    console.log(`New connection from ${address}`);
 
+    socket.on("login", (loginname) => {
+      processLogin(socket, loginname);
+    })
 
+    socket.on("chatsend", (obj) => {
+      const id = obj.id;
+      const message = obj.message;
+      console.log(`processing chat request: userid= ${id} message= ${message}`);
+      const name = chessPlayers.getName(id);
+      if (name == "") {
+        socket.emit("debug", `ERROR: Invalid id (${id}) sent with chat message.`)
+      } else {
+        const post = name + ": " + message;
+        updateChat(post);
+      }
+    })
 
+    socket.on("piecemove", (obj) => {
+      const id = obj.id;
+      if (chessPlayers.getName(id) == "") {
+        socket.emit("debug", `ERROR: Invalid id (${id}) sent with move piece.`)
+      } else {
+        processMove(socket, obj);
+      }
+    })
 
+    updateGrid();
+    updateStatus();
+  }
+);
