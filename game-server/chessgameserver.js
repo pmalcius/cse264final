@@ -28,36 +28,36 @@ function createGrid() {
         for (c = 0; c < 8; ++c)
         grid[r][c] = 0;
     }
-    return grid;
+    //return grid;
 }
 
 // Make it so it adds the pieces correctly.
 function initGrid() {
-    let grid = createGrid();
+    //let grid = createGrid();
 
     // White pieces
-    grid[0][0] = 3;  // White rook
-    grid[0][1] = 5;  // White knight
-    grid[0][2] = 4;  // White bishop
-    grid[0][3] = 2;  // White queen
+    grid[0][0] = 5;  // White rook
+    grid[0][1] = 9;  // White knight
+    grid[0][2] = 7;  // White bishop
+    grid[0][3] = 3;  // White queen
     grid[0][4] = 1;  // White king
-    grid[0][5] = 4;  // White bishop
-    grid[0][6] = 5;  // White knight
-    grid[0][7] = 3;  // White rook
-    grid[1] = new Array(8).fill(6); // White pawns
+    grid[0][5] = 7;  // White bishop
+    grid[0][6] = 9;  // White knight
+    grid[0][7] = 5;  // White rook
+    grid[1] = new Array(8).fill(11); // White pawns
 
     // Black pieces
-    grid[7][0] = 9;   // Black rook
-    grid[7][1] = 11;  // Black knight
-    grid[7][2] = 10;  // Black bishop
-    grid[7][3] = 8;   // Black queen
-    grid[7][4] = 7;   // Black king
-    grid[7][5] = 10;  // Black bishop
-    grid[7][6] = 11;  // Black knight
-    grid[7][7] = 9;   // Black rook
+    grid[7][0] = 6;   // Black rook
+    grid[7][1] = 10;  // Black knight
+    grid[7][2] = 8;  // Black bishop
+    grid[7][3] = 4;   // Black queen
+    grid[7][4] = 2;   // Black king
+    grid[7][5] = 8;  // Black bishop
+    grid[7][6] = 10;  // Black knight
+    grid[7][7] = 6;   // Black rook
     grid[6] = new Array(8).fill(12); // Black pawns
     
-    return grid;
+    //return grid;
 }
 
 function log(fcn, ctx, e) {
@@ -138,17 +138,45 @@ function processLogin(socket, loginname) {
         console.log(`processLogin: Empty name rejected. Original text = ${loginname}`);
         socket.emit("debug", `ERROR: Filtered user name is empty. Original name is ${loginname}`)
     } else {
-        let id = fruitSmashPlayers.getId(filteredName);
+        let id = chessPlayers.getId(filteredName);
         while (id != "") {
             filteredName += "*";
-            id = fruitSmashPlayers.getId(filteredName);
+            id = chessPlayers.getId(filteredName);
         }
-        fruitSmashPlayers.add(new Player(filteredName));
-        const newid = fruitSmashPlayers.getId(filteredName);
+        chessPlayers.add(new Player(filteredName));
+        const newid = chessPlayers.getId(filteredName);
         console.log(`processLogin: name= ${loginname} filtered name= ${filteredName} new id=${newid}`);
         socket.emit("debug", `INFO: User ${filteredName} logged in with id ${newid}`)
         socket.emit("loginresponse", { id: newid, filteredusername: filteredName });
         updateStatus();
     }
 }
+
+
+
+/* Need to add chess logic here 
+    1. Taking of a piece
+    2. checks?
+    3. moving
+    4. IDK man
+*/
+
+function movePiece(grid, startX, startY, endX, endY) {
+    // Check if the destination has an opponent's piece
+    if (grid[endX][endY] !== 0) {
+        console.log(`Piece taken at ${endX}, ${endY}`);
+    }
+    // Move the piece
+    grid[endX][endY] = grid[startX][startY];
+    grid[startX][startY] = 0;
+    return grid;
+}
+
+
+
+
+
+
+
+
 
