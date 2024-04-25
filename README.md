@@ -1,5 +1,6 @@
 # cse264final
 ## CSE264 Final Project - Chess Game
+### Made by Paulius Malcius and Evan Hu
 
 # To do
 - Create server side.
