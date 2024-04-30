@@ -32,8 +32,10 @@ function Timer(duration, display) {
         if (this.isPaused) {
             this.isPaused = false;
             this.interval = setInterval(() => {
-                if (--this.timer < 0) {
+                if (--this.timer <= 0) {
                     this.isFinished = true;
+                    clearInterval(this.interval); //stops the interval and sets isPaused to true
+                    this.isPaused = true;
                 }
                 this.updateDisplay();
             }, 1000);
@@ -60,9 +62,10 @@ function Timer(duration, display) {
 }
 
 function initializeTimers() {
-    blackTimer = new Timer(60*10, $blackClock);
-    whiteTimer = new Timer(60*10, $whiteClock);
-    blackTimer.pause();
+    blackTimer = new Timer(60*1, $blackClock);
+    whiteTimer = new Timer(60*1, $whiteClock);
+    blackTimer.updateDisplay();
+    whiteTimer.updateDisplay();
 }
 
 function onDragStart (source, piece, position, orientation) {
@@ -96,7 +99,7 @@ function onDrop (source, target) {
 
     socket.emit('move', theMove);
 
-    updateStatus()
+    updateStatus();
 }
 
 socket.on('newMove', function(move) {
@@ -112,31 +115,29 @@ function onSnapEnd () {
 }
 
 function updateStatus () {
-    var status = ''
+    var status = '';
 
-    var moveColor = 'White'
+    var moveColor = 'White';
     if (game.turn() === 'b') {
-        moveColor = 'Black'
+        moveColor = 'Black';
     }
 
     // checkmate?
     if (game.in_checkmate()) {
-        status = 'Game over, ' + moveColor + ' is in checkmate.'
+        status = 'Game over, ' + moveColor + ' is in checkmate.';
     }
 
     // draw?
     else if (game.in_draw()) {
-        status = 'Game over, drawn position'
+        status = 'Game over, drawn position';
     }
 
     else if (gameOver) {
-        status = 'Opponent disconnected, you win!'
+        status = 'Opponent disconnected, you win!';
     }
 
     else if (!gameHasStarted) {
-        status = 'Waiting for black to join'
-        whiteTimer.pause();
-        blackTimer.pause();
+        status = 'Waiting for black to join';
     }
 
     // game still on
