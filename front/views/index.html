@@ -10,18 +10,17 @@
             <input type="text" id="codeInput">
             <button id="createGame">Create game</button>
             <button id="joinGame">Join game</button><br>
-            <label for="loginInput">Login:</label>
-            <input type="text" id="loginInput">
-            <button id="loginButton">login</button>
+            <label for="interval">Time Interval:</label>
+            <input type="text" id="interval">
         </div>
         <div style="color: red" id="errorMessage"></div>
 
         <script>
             $('#createGame').on('click', function() {
-                window.location.replace('/white?code=' + $('#codeInput').val());
+                window.location.replace(`/white?code=${$('#codeInput').val()}&time=${$('#interval').val()}`);
             });
             $('#joinGame').on('click', function() {
-                window.location.replace('/black?code=' + $('#codeInput').val());
+                window.location.replace(`/black?code=${$('#codeInput').val()}&time=${$('#interval').val()}`);
             });
 
             var urlParams = new URLSearchParams(window.location.search);

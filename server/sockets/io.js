@@ -1,10 +1,12 @@
 
 
 module.exports = io => {
+    let timeInterval = 0;
     io.on('connection', socket => {
         console.log('New socket connection');
 
         let currentCode = null;
+        
 
         socket.on('move', function(move) {
             console.log('move detected')
@@ -13,15 +15,16 @@ module.exports = io => {
         });
         
         socket.on('joinGame', function(data) {
-
+            
             currentCode = data.code;
             socket.join(currentCode);
             if (!games[currentCode]) {
+                timeInterval = data.time;
                 games[currentCode] = true;
                 return;
             }
             
-            io.to(currentCode).emit('startGame');
+            io.to(currentCode).emit('startGame', timeInterval);
         });
 
         socket.on('disconnect', function() {

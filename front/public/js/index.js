@@ -62,9 +62,9 @@ function Timer(duration, display) {
     };
 }
 
-function initializeTimers() {
-    blackTimer = new Timer(10*1, $blackClock);
-    whiteTimer = new Timer(10*1, $whiteClock);
+function initializeTimers(timeMin) {
+    blackTimer = new Timer(60*timeMin, $blackClock);
+    whiteTimer = new Timer(60*timeMin, $whiteClock);
     blackTimer.updateDisplay();
     whiteTimer.updateDisplay();
 }
@@ -120,6 +120,8 @@ function updateStatus () {
     // checkmate?
     if (game.in_checkmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.';
+        blackTimer.pause();
+        whiteTimer.pause();
     }
 
     // draw?
@@ -180,13 +182,14 @@ updateStatus();
 var urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('code')) {
     socket.emit('joinGame', {
-        code: urlParams.get('code')
+        code: urlParams.get('code'),
+        time: parseInt(urlParams.get('time'), 10),
     });
 }
 
-socket.on('startGame', function() {
+socket.on('startGame', function(timeInterval) {
     gameHasStarted = true;
-    initializeTimers();
+    initializeTimers(timeInterval);
     updateStatus();
 });
 
