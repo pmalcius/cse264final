@@ -9,6 +9,7 @@ var $whiteClock = $('#whiteClock');
 var blackTimer;
 var whiteTimer;
 let gameOver = false;
+var timeout = false;
 
 // Display is the jquery element for each clock
 // start timer starts a timer for a display
@@ -18,7 +19,6 @@ function Timer(duration, display) {
     this.interval = null;
     this.display = display;
     this.isPaused = true;
-    this.isFinished = false;
 
     this.updateDisplay = function() {
         let minutes = parseInt(this.timer / 60, 10);
@@ -33,9 +33,10 @@ function Timer(duration, display) {
             this.isPaused = false;
             this.interval = setInterval(() => {
                 if (--this.timer <= 0) {
-                    this.isFinished = true;
                     clearInterval(this.interval); //stops the interval and sets isPaused to true
                     this.isPaused = true;
+                    timeout=true;
+                    socket.emit('timeout');
                 }
                 this.updateDisplay();
             }, 1000);
@@ -62,8 +63,8 @@ function Timer(duration, display) {
 }
 
 function initializeTimers() {
-    blackTimer = new Timer(60*1, $blackClock);
-    whiteTimer = new Timer(60*1, $whiteClock);
+    blackTimer = new Timer(10*1, $blackClock);
+    whiteTimer = new Timer(10*1, $whiteClock);
     blackTimer.updateDisplay();
     whiteTimer.updateDisplay();
 }
@@ -102,12 +103,6 @@ function onDrop (source, target) {
     updateStatus();
 }
 
-socket.on('newMove', function(move) {
-    game.move(move);
-    board.position(game.fen());
-    updateStatus();
-});
-
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 function onSnapEnd () {
@@ -133,8 +128,13 @@ function updateStatus () {
     }
 
     else if (gameOver) {
-        status = 'Opponent disconnected, you win!';
+        if(timeout) {
+            status = `${moveColor} ran out of time`;
+        } else {
+            status = 'Opponent disconnected, you win!';
+        } 
     }
+
 
     else if (!gameHasStarted) {
         status = 'Waiting for black to join';
@@ -191,6 +191,17 @@ socket.on('startGame', function() {
 });
 
 socket.on('gameOverDisconnect', function() {
+    gameOver = true;
+    updateStatus();
+});
+
+socket.on('newMove', function(move) {
+    game.move(move);
+    board.position(game.fen());
+    updateStatus();
+});
+
+socket.on('gameOverTimeout', function() {
     gameOver = true;
     updateStatus();
 });

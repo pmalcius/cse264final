@@ -33,5 +33,11 @@ module.exports = io => {
             }
         });
 
+        socket.on('timeout', function() {
+            console.log('clock timeout');
+            if (currentCode) {
+                io.to(currentCode).emit('gameOverTimeout');
+            }
+        });
     });
 };
