@@ -6,6 +6,8 @@ var $status = $('#status')
 var $pgn = $('#pgn')
 let gameOver = false;
 
+
+
 function onDragStart (source, piece, position, orientation) {
     // do not pick up pieces if the game is over
     if (game.game_over()) return false

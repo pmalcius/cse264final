@@ -1,0 +1,42 @@
+#startContainer {
+    background-color:#689E69;
+    border-width: 4px;
+    border-style: solid;
+    border-color: #33252C;  
+    color:bisque;
+    font-weight: bolder;
+    font-size: 22px; 
+    margin: auto;
+    width: 500px;
+}
+
+#myBoard {
+    position: relative;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    
+    margin: auto;
+}
+
+#gamebody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background-color:#689E69;
+    border-width: 4px;
+    border-style: solid;
+    border-color: #33252C;  
+    color:bisque;
+    font-weight: bolder;
+    font-size: 26px; 
+
+    max-height: 100%;
+    max-width: 100%;
+    
+    margin: auto;
+    padding-top: 40px;
+    width: 800px;
+}

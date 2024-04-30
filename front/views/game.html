@@ -1,20 +1,21 @@
 <html>
     <head>
         {{> head}}
+        <link rel="stylesheet" href="../public/css/style.css">
     </head>
-    <body>
+    <body id="gameHtmlBody">
+        <div id="gamebody">
+            <div id="myBoard" style="width: 700px"></div>
+            <label>Status:</label>
+            <div id="status"></div>
+            <label>PGN:</label>
+            <div id="pgn"></div>
 
-        <div id="myBoard" style="width: 700px"></div>
-        <label>Status:</label>
-        <div id="status"></div>
-        <label>PGN:</label>
-        <div id="pgn"></div>
-
-        <script>
-            let playerColor = '{{color}}';
-            console.log('Playing as ' + playerColor);
-        </script>
-        <script src="/public/js/index.js"></script>
-
+            <script>
+                let playerColor = '{{color}}';
+                console.log('Playing as ' + playerColor);
+            </script>
+            <script src="/public/js/index.js"></script>
+        </div>
     </body>
 </html>
