@@ -1,12 +1,69 @@
 
 let gameHasStarted = false;
-var board = null
-var game = new Chess()
-var $status = $('#status')
-var $pgn = $('#pgn')
+var board = null;
+var game = new Chess();
+var $status = $('#status');
+var $pgn = $('#pgn');
+var $blackClock = $('#blackClock');
+var $whiteClock = $('#whiteClock');
+var blackTimer;
+var whiteTimer;
 let gameOver = false;
 
+// Display is the jquery element for each clock
+// start timer starts a timer for a display
+function Timer(duration, display) {
+    this.duration = duration; //stores the duration argument
+    this.timer = duration; //stores the current duration
+    this.interval = null;
+    this.display = display;
+    this.isPaused = true;
+    this.isFinished = false;
 
+    this.updateDisplay = function() {
+        let minutes = parseInt(this.timer / 60, 10);
+        let seconds = parseInt(this.timer % 60, 10);
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        this.display.html(minutes + ":" + seconds);
+    };
+
+    this.start = function() { //unpause the timer if paused
+        if (this.isPaused) {
+            this.isPaused = false;
+            this.interval = setInterval(() => {
+                if (--this.timer < 0) {
+                    this.isFinished = true;
+                }
+                this.updateDisplay();
+            }, 1000);
+        }
+    }
+
+    this.pause = function() {
+        if (!this.isPaused) {
+            clearInterval(this.interval); //stops the interval and sets isPaused to true
+            this.isPaused = true;
+        }
+    };
+
+    this.resume = function() { //calls start if isPaused is true
+        if (this.isPaused) {
+            this.start();
+        }
+    };
+
+    this.reset = function() { //resets the timer to original duration (not necessary)
+        this.timer = this.duration;
+        this.updateDisplay();
+    };
+}
+
+function initializeTimers() {
+    blackTimer = new Timer(60*10, $blackClock);
+    whiteTimer = new Timer(60*10, $whiteClock);
+    blackTimer.pause();
+}
 
 function onDragStart (source, piece, position, orientation) {
     // do not pick up pieces if the game is over
@@ -78,6 +135,8 @@ function updateStatus () {
 
     else if (!gameHasStarted) {
         status = 'Waiting for black to join'
+        whiteTimer.pause();
+        blackTimer.pause();
     }
 
     // game still on
@@ -88,7 +147,14 @@ function updateStatus () {
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'
         }
-        
+        // insert the call to start moveColor's timer and pause the other timer
+        if(moveColor === 'White') {
+            whiteTimer.resume();
+            blackTimer.pause();
+        } else if(moveColor === 'Black') {
+            whiteTimer.pause();
+            blackTimer.resume();
+        }
     }
 
     $status.html(status)
@@ -108,7 +174,7 @@ if (playerColor == 'black') {
     board.flip();
 }
 
-updateStatus()
+updateStatus();
 
 var urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('code')) {
@@ -119,10 +185,11 @@ if (urlParams.get('code')) {
 
 socket.on('startGame', function() {
     gameHasStarted = true;
-    updateStatus()
+    initializeTimers();
+    updateStatus();
 });
 
 socket.on('gameOverDisconnect', function() {
     gameOver = true;
-    updateStatus()
+    updateStatus();
 });
