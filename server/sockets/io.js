@@ -1,5 +1,3 @@
-
-
 module.exports = io => {
     let timeInterval = 0;
     io.on('connection', socket => {
@@ -41,6 +39,12 @@ module.exports = io => {
             if (currentCode) {
                 io.to(currentCode).emit('gameOverTimeout');
             }
+        });
+
+        // Add chat function here
+        socket.on('message', (message) => {
+            console.log(message);
+            io.emit('message', `${message}`);
         });
     });
 };
