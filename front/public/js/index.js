@@ -161,7 +161,18 @@ function updateStatus () {
     }
 
     $status.html(status)
-    $pgn.html(game.pgn())
+    // Update PGN display to format moves correctly
+    var pgn = game.pgn({ max_width: 5, newline_char: '<br>' }); // Use Chess.js's options to format PGN
+    var formattedPgn = pgn.replace(/\d+\./g, function(match) {
+        return '<div>' + match; // Start a new div for each move number
+    });
+    formattedPgn = formattedPgn.replace(/<br>/g, '</div>'); // Close the div at each new line
+
+    $pgn.html(formattedPgn);
+
+    // Scroll to the bottom of the moves list
+    var movesScrollable = $('#moves-scrollable');
+    movesScrollable.scrollTop(movesScrollable.prop('scrollHeight'));
 }
 
 var config = {

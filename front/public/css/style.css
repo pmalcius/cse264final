@@ -1,22 +1,18 @@
 #startContainer {
-    background-color:#689E69;
+    background-color: #689E69;
     border-width: 4px;
     border-style: solid;
     border-color: #33252C;  
-    color:bisque;
+    color: bisque;
     font-weight: bolder;
     font-size: 22px; 
     margin: auto;
     width: 500px;
+    padding-left: 5px;
 }
 
 #myBoard {
     position: relative;
-    top:0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    
     margin: auto;
 }
 
@@ -24,19 +20,37 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    background-color:#689E69;
+    background-color: #689E69;
     border-width: 4px;
     border-style: solid;
     border-color: #33252C;  
-    color:bisque;
+    color: bisque;
     font-weight: bolder;
     font-size: 26px; 
-
     max-height: 100%;
     max-width: 100%;
-    
     margin: auto;
     padding-top: 40px;
     width: 800px;
+}
+
+#gameHtmlBody {
+    display: flex;
+}
+
+#gamebody {
+    flex: 1 1 70%;
+}
+
+#moves-scrollable {
+    flex: 1 1 30%;
+    height: 200px;
+    overflow-y: scroll; /* Enable vertical scrolling */
+    padding: 10px;
+    border: 4px solid #33252C;
+    font-size: 20px;
+    background-color: #689E69;
+    color: bisque;
+    margin: auto;
+    margin-left: 5px;
 }
