@@ -1,18 +1,39 @@
 const HOST = process.argv[2];
 const PORT = process.argv[3];
 
-const http = require('http'),
-      path = require('path'),
-      express = require('express'),
-      handlebars = require('express-handlebars'),
-      socket = require('socket.io');
+const express = require('express');
+const { createServer } = require('http');
+const { join } = require('path');
+const { Server } = require('socket.io');
 
-const app = express(),
-      server = http.Server(app),
-      io = socket(server);
+const app = express();
 
-const localPort = 3000; //Port for localhosting
-server.listen(localPort, () => { console.log('server running locally')}); // LOCAL HOSTING ON PORT 3000
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+// const app = express();
+// const http = require('http'),
+//       path = require('path'),
+//       express = require('express'),
+//       //handlebars = require('express-handlebars'),
+//       socket = require('socket.io');
+
+// const app = express(),
+//       server = http.Server(app),
+//       io = socket(server);
+
+const localPort = 3001; // Port for localhosting
+server.listen(localPort, 'localhost', () => { console.log('server running locally on port 3001')});
 
 games = {};
 
@@ -23,7 +44,6 @@ io.on('connection', socket => {
 
     let currentCode = null;
     
-
     socket.on('move', function(move) {
         console.log('move detected')
 
@@ -31,16 +51,22 @@ io.on('connection', socket => {
     });
     
     socket.on('joinGame', function(data) {
-        
-        currentCode = data.code;
-        socket.join(currentCode);
-        if (!games[currentCode]) {
-            timeInterval = data.time;
-            games[currentCode] = true;
-            return;
-        }
-        
-        io.to(currentCode).emit('startGame', timeInterval);
+      console.log('Someone joined a game')
+      currentCode = data.code;
+      socket.join(currentCode);
+      if (!games[currentCode]) { // create a entry in the games map an set it to true
+          timeInterval = data.time;
+          games[currentCode] = true;
+          return;
+      }
+      io.to(currentCode).emit('startGame', timeInterval);
+    });
+
+    // Route to retrieve if a game is valid
+    // Listen for game code validation requests
+    socket.on('validateCode', (code, callback) => {
+      const isValid = games.hasOwnProperty(code);
+      callback(isValid);  // Respond back to `app.js`
     });
 
     socket.on('disconnect', function() {
@@ -58,17 +84,11 @@ io.on('connection', socket => {
             io.to(currentCode).emit('gameOverTimeout');
         }
     });
-
-    // Add chat function here
-    socket.on('message', (message) => {
-        console.log(message);
-        io.emit('message', `${message}`);
-    });
 });
 
-
-// Listen for connections on PORT
-//server.listen(PORT, HOST, () => { console.log(`Server running at http://${HOST}:${PORT}/`); });
+/*
+Listen for connections on PORT
+server.listen(PORT, HOST, () => { console.log(`Server running at http://${HOST}:${PORT}/`); });
 
 const Handlebars = handlebars.create({
   extname: '.html', 
@@ -76,6 +96,7 @@ const Handlebars = handlebars.create({
   defaultLayout: false,
   helpers: {}
 });
+
 app.engine('html', Handlebars.engine);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, '..', 'front', 'views'));
@@ -100,5 +121,5 @@ app.get('/black', (req, res) => {
       color: 'black'
   });
 });
-
+*/
 

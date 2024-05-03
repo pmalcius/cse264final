@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="../css/chessboard-1.0.0.min.css" />
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body>
+        <div id="startContainer">
+            <h2>Chess: Create Game</h2>
+            <label for="codeInput">Game Code:</label>
+            <input type="text" id="codeInput">
+            <button id="createGame">Create game</button>
+            <button id="joinGame">Join game</button><br>
+            <label for="interval">Time Interval:</label>
+            <input type="text" id="interval">
+        </div>
+        <div style="color: red" id="errorMessage"></div>
+
+
+        <script src="../js/jquery-3.7.0.min.js"></script>
+        <script src="../js/chessboard-1.0.0.min.js"></script>
+        <script src="../js/chess-0.10.3.min.js"></script>
+        <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+        <script src="../js/index.js"></script>
+        <!--<script>let socket = io();</script>-->
+    </body>
+</html>

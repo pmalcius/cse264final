@@ -1,7 +1,7 @@
 <html>
     <head>
-        {{> head}}
-        <link rel="stylesheet" href="../public/css/style.css">
+        <link rel="stylesheet" href="../css/chessboard-1.0.0.min.css" />
+        <link rel="stylesheet" href="../css/style.css">
     </head>
     <body id="gameHtmlBody">
         <div id="gamebody">
@@ -19,6 +19,12 @@
             let playerColor = '{{color}}';
             console.log('Playing as ' + playerColor);
         </script>
-        <script src="/public/js/index.js"></script>
+
+
+        <script src="../js/jquery-3.7.0.min.js"></script>
+        <script src="../js/chessboard-1.0.0.min.js"></script>
+        <script src="../js/chess-0.10.3.min.js"></script>
+        <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+        <script src="../js/game.js"></script>
     </body>
 </html>

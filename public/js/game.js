@@ -1,18 +1,24 @@
-
+const socket = io.connect('http://localhost:3001');
 let gameHasStarted = false;
 var board = null;
 var game = new Chess();
 var $status = $('#status');
 var $pgn = $('#pgn');
+
 var $blackClock = $('#blackClock');
 var $whiteClock = $('#whiteClock');
 var blackTimer;
 var whiteTimer;
+
 let gameOver = false;
 var timeout = false;
 
-// Display is the jquery element for each clock
-// start timer starts a timer for a display
+/**
+ *  Timer Class for the chess clock
+ *  Display is the jquery element for each clock
+ *  start timer starts a timer for a display
+ *  THIS WORKS CLIENT SIDE, RELYING ON SERVER FOR WHEN TO SWITCH CLOCKS
+ */
 function Timer(duration, display) {
     this.duration = duration; //stores the duration argument
     this.timer = duration; //stores the current duration
@@ -61,12 +67,23 @@ function Timer(duration, display) {
         this.updateDisplay();
     };
 }
-
 function initializeTimers(timeMin) {
     blackTimer = new Timer(60*timeMin, $blackClock);
     whiteTimer = new Timer(60*timeMin, $whiteClock);
     blackTimer.updateDisplay();
     whiteTimer.updateDisplay();
+} // End of Timer function and class
+
+
+// Joining the game
+var urlParams = new URLSearchParams(window.location.search);
+console.log("TESTING CODE"+urlParams.get('code'));
+if (urlParams.get('code')) {
+    console.log("TESTING CODE"+urlParams.get('code'));
+    socket.emit('joinGame', {
+        code: urlParams.get('code'),
+        time: parseInt(urlParams.get('time'), 10),
+    });
 }
 
 function onDragStart (source, piece, position, orientation) {
@@ -111,39 +128,27 @@ function onSnapEnd () {
 
 function updateStatus () {
     var status = '';
-
     var moveColor = 'White';
+
     if (game.turn() === 'b') {
         moveColor = 'Black';
     }
 
-    // checkmate?
-    if (game.in_checkmate()) {
+    if (game.in_checkmate()) { // checkmate?
         status = 'Game over, ' + moveColor + ' is in checkmate.';
         blackTimer.pause();
         whiteTimer.pause();
-    }
-
-    // draw?
-    else if (game.in_draw()) {
+    } else if (game.in_draw()) { // draw?
         status = 'Game over, drawn position';
-    }
-
-    else if (gameOver) {
+    } else if (gameOver) {
         if(timeout) {
             status = `${moveColor} ran out of time`;
         } else {
             status = 'Opponent disconnected, you win!';
         } 
-    }
-
-
-    else if (!gameHasStarted) {
+    } else if (!gameHasStarted) {
         status = 'Waiting for black to join';
-    }
-
-    // game still on
-    else {
+    } else { // game still on
         status = moveColor + ' to move'
 
         // check?
@@ -175,29 +180,26 @@ function updateStatus () {
     movesScrollable.scrollTop(movesScrollable.prop('scrollHeight'));
 }
 
-var config = {
+
+// Loading the chessboard and its functionality
+let config = {
     draggable: true,
     position: 'start',
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd: onSnapEnd,
-    pieceTheme: '/public/img/chesspieces/wikipedia/{piece}.png'
+    pieceTheme: '../img/chesspieces/wikipedia/{piece}.png'
 }
-board = Chessboard('myBoard', config)
+board = Chessboard('myBoard', config);
 if (playerColor == 'black') {
     board.flip();
 }
-
 updateStatus();
 
-var urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('code')) {
-    socket.emit('joinGame', {
-        code: urlParams.get('code'),
-        time: parseInt(urlParams.get('time'), 10),
-    });
-}
 
+
+
+// Initialize sockets
 socket.on('startGame', function(timeInterval) {
     gameHasStarted = true;
     initializeTimers(timeInterval);
@@ -219,3 +221,4 @@ socket.on('gameOverTimeout', function() {
     gameOver = true;
     updateStatus();
 });
+
