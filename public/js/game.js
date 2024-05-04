@@ -1,4 +1,4 @@
-const socket = io.connect('http://localhost:3001');
+const socket = io.connect('http://mars.cse.lehigh.edu:9090');
 let gameHasStarted = false;
 var board = null;
 var game = new Chess();

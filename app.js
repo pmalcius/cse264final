@@ -3,7 +3,7 @@ const path = require("path");
 const app = express();
 const handlebars = require('express-handlebars');
 const socketClient = require('socket.io-client');
-const serverSocket = socketClient.connect('http://localhost:3001');
+const serverSocket = socketClient.connect('http://mars.cse.lehigh.edu:9090');
 
 // Setup middleware
 const Handlebars = handlebars.create({

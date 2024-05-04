@@ -32,8 +32,8 @@ const io = new Server(server, {
 //       server = http.Server(app),
 //       io = socket(server);
 
-const localPort = 3001; // Port for localhosting
-server.listen(localPort, 'localhost', () => { console.log('server running locally on port 3001')});
+// const localPort = 3001; // Port for localhosting
+// server.listen(localPort, 'localhost', () => { console.log('server running locally on port 3001')});
 
 games = {};
 
@@ -86,10 +86,11 @@ io.on('connection', socket => {
     });
 });
 
-/*
-Listen for connections on PORT
+
+// Listen for connections on PORT
 server.listen(PORT, HOST, () => { console.log(`Server running at http://${HOST}:${PORT}/`); });
 
+/*
 const Handlebars = handlebars.create({
   extname: '.html', 
   partialsDir: path.join(__dirname, '..', 'front', 'views', 'partials'), 
